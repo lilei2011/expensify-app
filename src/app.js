@@ -1,9 +1,33 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import IndecisionApp from './components/IndecisionApp';
+import { Provider } from 'react-redux';
+import AppRouter from './routers/AppRouter';
+import configureStore from './store/configureStore';
+import { addExpense } from './actions/expenses';
+import { setTextFilter } from './actions/filters';
+import getVisibleExpenses from './selectors/expenses';
+
 import './styles/styles.scss';
 
-ReactDOM.render(<IndecisionApp />, document.getElementById('app'));
+const store = configureStore();
 
-// const template = <p>This is JSX</p>
-// ReactDOM.render(template, document.getElementById('app'));
+store.dispatch(addExpense({ description: 'Water bill' }));
+store.dispatch(addExpense({ description: 'Gas bill' }));
+store.dispatch(setTextFilter('water'));
+
+setTimeout(() => {
+  store.dispatch(setTextFilter('rent'));
+}, 3000)
+
+const state = store.getState();
+console.log(state);
+const visibleExpenses = getVisibleExpenses(state.expenses, state.filters);
+console.log(visibleExpenses);
+
+const jsx = (
+  <Provider store={store}>
+    <AppRouter />
+  </Provider>
+);
+
+ReactDOM.render(jsx, document.getElementById('app'));
